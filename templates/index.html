@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Compressor Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-800">File Compressor Pro</h1>
+        
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="flex border-b border-gray-200">
+                <button class="tab-btn active px-6 py-3 text-blue-600 border-b-2 border-blue-600" data-tab="compress">
+                    <i class="fas fa-compress-alt mr-2"></i>Compress
+                </button>
+                <button class="tab-btn px-6 py-3 text-gray-500 hover:text-gray-700" data-tab="pdf">
+                    <i class="fas fa-file-pdf mr-2"></i>PDF Tools
+                </button>
+                <button class="tab-btn px-6 py-3 text-gray-500 hover:text-gray-700" data-tab="about">
+                    <i class="fas fa-info-circle mr-2"></i>About
+                </button>
+            </div>
+        </div>
+
+        <!-- Compress Tab -->
+        <div id="compress" class="tab-content">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">File Type</label>
+                    <select id="fileType" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="Videos">Videos</option>
+                        <option value="Images">Images</option>
+                        <option value="PDFs">PDFs</option>
+                        <option value="All Files">All Files</option>
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Quality: <span id="qualityValue">80%</span></label>
+                    <input type="range" id="quality" min="0" max="100" value="80" 
+                           class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Select Files</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <input type="file" id="files" multiple class="hidden">
+                        <label for="files" class="cursor-pointer">
+                            <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">Drag and drop files here or click to select</p>
+                        </label>
+                    </div>
+                    <div id="fileList" class="mt-4 space-y-2"></div>
+                </div>
+
+                <!-- Progress Section -->
+                <div id="progressSection" class="mb-6 hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">Compressing...</span>
+                        <span id="progressText" class="text-sm font-medium text-gray-700">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="statusText" class="text-sm text-gray-500 mt-2">Preparing files...</p>
+                </div>
+
+                <button id="compressBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-compress-alt mr-2"></i>Compress Files
+                </button>
+            </div>
+        </div>
+
+        <!-- PDF Tools Tab -->
+        <div id="pdf" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Select PDFs to Merge</label>
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                        <input type="file" id="pdfFiles" multiple accept=".pdf" class="hidden">
+                        <label for="pdfFiles" class="cursor-pointer">
+                            <i class="fas fa-file-pdf text-4xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-600">Drag and drop PDFs here or click to select</p>
+                        </label>
+                    </div>
+                    <div id="pdfList" class="mt-4 space-y-2"></div>
+                </div>
+
+                <!-- PDF Progress Section -->
+                <div id="pdfProgressSection" class="mb-6 hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">Merging PDFs...</span>
+                        <span id="pdfProgressText" class="text-sm font-medium text-gray-700">0%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="pdfProgressBar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="pdfStatusText" class="text-sm text-gray-500 mt-2">Preparing PDFs...</p>
+                </div>
+
+                <button id="mergeBtn" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-object-group mr-2"></i>Merge PDFs
+                </button>
+            </div>
+        </div>
+
+        <!-- About Tab -->
+        <div id="about" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="text-center">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">About File Compressor Pro</h2>
+                    <div class="space-y-4">
+                        <p class="text-gray-600">
+                            A powerful web application for compressing various file types including videos, images, and PDFs.
+                        </p>
+                        <div class="border-t border-gray-200 my-4"></div>
+                        <div class="text-gray-700">
+                            <p class="font-semibold">Developer</p>
+                            <p class="text-blue-600">Malav Shah</p>
+                        </div>
+                        <div class="border-t border-gray-200 my-4"></div>
+                        <div class="text-sm text-gray-500">
+                            <p>Version 1.0.0</p>
+                            <p>© 2024 All rights reserved</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active', 'text-blue-600', 'border-b-2', 'border-blue-600');
+                    btn.classList.add('text-gray-500');
+                });
+                button.classList.add('active', 'text-blue-600', 'border-b-2', 'border-blue-600');
+                button.classList.remove('text-gray-500');
+
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                document.getElementById(button.dataset.tab).classList.remove('hidden');
+            });
+        });
+
+        // Quality slider
+        const qualitySlider = document.getElementById('quality');
+        const qualityValue = document.getElementById('qualityValue');
+        qualitySlider.addEventListener('input', () => {
+            qualityValue.textContent = `${qualitySlider.value}%`;
+        });
+
+        // File handling
+        function updateFileList(input, listElement) {
+            listElement.innerHTML = '';
+            Array.from(input.files).forEach(file => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between bg-gray-50 p-2 rounded';
+                div.innerHTML = `
+                    <span class="text-sm text-gray-600">${file.name}</span>
+                    <span class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</span>
+                `;
+                listElement.appendChild(div);
+            });
+        }
+
+        document.getElementById('files').addEventListener('change', (e) => {
+            updateFileList(e.target, document.getElementById('fileList'));
+        });
+
+        document.getElementById('pdfFiles').addEventListener('change', (e) => {
+            updateFileList(e.target, document.getElementById('pdfList'));
+        });
+
+        // Progress bar functions
+        function updateProgress(progress, status, section, bar, text, statusText) {
+            section.classList.remove('hidden');
+            bar.style.width = `${progress}%`;
+            text.textContent = `${progress}%`;
+            statusText.textContent = status;
+        }
+
+        function resetProgress(section, bar, text, statusText) {
+            section.classList.add('hidden');
+            bar.style.width = '0%';
+            text.textContent = '0%';
+            statusText.textContent = '';
+        }
+
+        // Compress files
+        document.getElementById('compressBtn').addEventListener('click', async () => {
+            const files = document.getElementById('files').files;
+            if (files.length === 0) {
+                alert('Please select files to compress');
+                return;
+            }
+
+            const compressBtn = document.getElementById('compressBtn');
+            const progressSection = document.getElementById('progressSection');
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            const statusText = document.getElementById('statusText');
+
+            // Disable button and show progress
+            compressBtn.disabled = true;
+            compressBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            updateProgress(0, 'Starting compression...', progressSection, progressBar, progressText, statusText);
+
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append('files[]', file);
+            });
+            formData.append('quality', document.getElementById('quality').value);
+            formData.append('fileType', document.getElementById('fileType').value);
+
+            try {
+                // Show upload progress
+                updateProgress(5, 'Preparing files...', progressSection, progressBar, progressText, statusText);
+                
+                // Create a timeout promise
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Request timed out after 5 minutes')), 300000);
+                });
+
+                // Race between the fetch and timeout
+                const response = await Promise.race([
+                    fetch('/compress', {
+                        method: 'POST',
+                        body: formData
+                    }),
+                    timeoutPromise
+                ]);
+
+                if (response.ok) {
+                    updateProgress(95, 'Creating download...', progressSection, progressBar, progressText, statusText);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'compressed_files.zip';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                    
+                    updateProgress(100, 'Download complete!', progressSection, progressBar, progressText, statusText);
+                    // Reset after successful download
+                    setTimeout(() => {
+                        resetProgress(progressSection, progressBar, progressText, statusText);
+                        compressBtn.disabled = false;
+                        compressBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    const errorMessage = error.error || 'An error occurred during compression';
+                    alert(errorMessage);
+                    statusText.textContent = `Error: ${errorMessage}`;
+                    statusText.classList.add('text-red-500');
+                    resetProgress(progressSection, progressBar, progressText, statusText);
+                    compressBtn.disabled = false;
+                    compressBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } catch (error) {
+                const errorMessage = error.message || 'An error occurred during compression';
+                alert(errorMessage);
+                statusText.textContent = `Error: ${errorMessage}`;
+                statusText.classList.add('text-red-500');
+                resetProgress(progressSection, progressBar, progressText, statusText);
+                compressBtn.disabled = false;
+                compressBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        // Merge PDFs
+        document.getElementById('mergeBtn').addEventListener('click', async () => {
+            const files = document.getElementById('pdfFiles').files;
+            if (files.length === 0) {
+                alert('Please select PDFs to merge');
+                return;
+            }
+
+            const mergeBtn = document.getElementById('mergeBtn');
+            const progressSection = document.getElementById('pdfProgressSection');
+            const progressBar = document.getElementById('pdfProgressBar');
+            const progressText = document.getElementById('pdfProgressText');
+            const statusText = document.getElementById('pdfStatusText');
+
+            // Disable button and show progress
+            mergeBtn.disabled = true;
+            mergeBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            updateProgress(0, 'Starting PDF merge...', progressSection, progressBar, progressText, statusText);
+
+            const formData = new FormData();
+            Array.from(files).forEach(file => {
+                formData.append('files[]', file);
+            });
+
+            try {
+                updateProgress(10, 'Uploading PDFs...', progressSection, progressBar, progressText, statusText);
+                const response = await fetch('/merge-pdf', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    updateProgress(90, 'Merge complete! Preparing download...', progressSection, progressBar, progressText, statusText);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'merged.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                    
+                    updateProgress(100, 'Download complete!', progressSection, progressBar, progressText, statusText);
+                    // Reset after successful download
+                    setTimeout(() => {
+                        resetProgress(progressSection, progressBar, progressText, statusText);
+                        mergeBtn.disabled = false;
+                        mergeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }, 2000);
+                } else {
+                    const error = await response.json();
+                    const errorMessage = error.error || 'An error occurred during merging';
+                    alert(errorMessage);
+                    statusText.textContent = `Error: ${errorMessage}`;
+                    statusText.classList.add('text-red-500');
+                    resetProgress(progressSection, progressBar, progressText, statusText);
+                    mergeBtn.disabled = false;
+                    mergeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+            } catch (error) {
+                const errorMessage = error.message || 'An error occurred during merging';
+                alert(errorMessage);
+                statusText.textContent = `Error: ${errorMessage}`;
+                statusText.classList.add('text-red-500');
+                resetProgress(progressSection, progressBar, progressText, statusText);
+                mergeBtn.disabled = false;
+                mergeBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        });
+
+        // Drag and drop support
+        ['files', 'pdfFiles'].forEach(id => {
+            const dropZone = document.querySelector(`#${id}`).parentElement;
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                });
+            });
+
+            dropZone.addEventListener('dragenter', () => {
+                dropZone.classList.add('border-blue-500');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('border-blue-500');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                dropZone.classList.remove('border-blue-500');
+                const input = document.getElementById(id);
+                input.files = e.dataTransfer.files;
+                input.dispatchEvent(new Event('change'));
+            });
+        });
+    </script>
+</body>
+</html> 

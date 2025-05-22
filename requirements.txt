@@ -1,0 +1,5 @@
+flask==3.0.2
+pillow==11.2.1
+pymupdf==1.25.5
+werkzeug==3.0.1
+gunicorn==21.2.0 
