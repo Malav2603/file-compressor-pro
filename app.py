@@ -27,16 +27,26 @@ def allowed_file(filename, file_type):
     image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
     pdf_extensions = {'.pdf'}
     
+    # Get the file extension in lowercase
     ext = os.path.splitext(filename.lower())[1]
     
+    # Validate file type
     if file_type == 'Videos':
-        return ext in video_extensions
+        if ext not in video_extensions:
+            raise ValueError(f"Invalid video format. Supported formats: {', '.join(video_extensions)}")
+        return True
     elif file_type == 'Images':
-        return ext in image_extensions
+        if ext not in image_extensions:
+            raise ValueError(f"Invalid image format. Supported formats: {', '.join(image_extensions)}")
+        return True
     elif file_type == 'PDFs':
-        return ext in pdf_extensions
+        if ext not in pdf_extensions:
+            raise ValueError(f"Invalid PDF format. Only .pdf files are supported.")
+        return True
     else:  # All Files
-        return ext in video_extensions | image_extensions | pdf_extensions
+        if ext not in (video_extensions | image_extensions | pdf_extensions):
+            raise ValueError(f"Invalid file format. Supported formats: {', '.join(video_extensions | image_extensions | pdf_extensions)}")
+        return True
 
 def compress_file(file_path, quality, file_type):
     """Compress a file based on its type and quality setting."""
@@ -130,6 +140,10 @@ def compress():
         if not files:
             return jsonify({'error': 'No files selected'}), 400
         
+        # Validate quality value
+        if not 0 <= quality <= 100:
+            return jsonify({'error': 'Quality must be between 0 and 100'}), 400
+        
         # Create temporary directory for processing
         with tempfile.TemporaryDirectory() as temp_dir:
             compressed_files = []
@@ -139,27 +153,30 @@ def compress():
             for file in files:
                 if file.filename == '':
                     continue
-                    
-                if not allowed_file(file.filename, file_type):
-                    logger.warning(f"Skipping unsupported file: {file.filename}")
-                    continue
-                    
-                # Save uploaded file
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(temp_dir, filename)
-                file.save(file_path)
-                logger.debug(f"Saved uploaded file: {file_path}")
                 
                 try:
+                    # Validate file type
+                    if not allowed_file(file.filename, file_type):
+                        continue
+                        
+                    # Save uploaded file
+                    filename = secure_filename(file.filename)
+                    file_path = os.path.join(temp_dir, filename)
+                    file.save(file_path)
+                    logger.debug(f"Saved uploaded file: {file_path}")
+                    
                     # Compress file
                     compressed_path = compress_file(file_path, quality, file_type)
                     compressed_files.append(compressed_path)
                     processed_files += 1
                     logger.debug(f"Successfully compressed: {filename}")
                     
+                except ValueError as ve:
+                    logger.warning(f"Invalid file format: {str(ve)}")
+                    return jsonify({'error': str(ve)}), 400
                 except Exception as e:
-                    logger.error(f"Failed to compress {filename}: {str(e)}")
-                    return jsonify({'error': str(e)}), 500
+                    logger.error(f"Failed to compress {file.filename}: {str(e)}")
+                    return jsonify({'error': f"Failed to compress {file.filename}: {str(e)}"}), 500
             
             if not compressed_files:
                 return jsonify({'error': 'No valid files to compress'}), 400
